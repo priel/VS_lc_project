@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 	//TODO: put it in function
 	double temp_range[] = TEMPERATURE_RANGE;
 	int temp_size = SIZE_OF_ARRAY(temp_range);
-	std::vector<double> sys_sizes(temp_range, temp_range + sizeof(temp_range) / sizeof(temp_range[0]));
+	std::vector<double> temperature_range(temp_range, temp_range + sizeof(temp_range) / sizeof(temp_range[0]));
 
 	std::vector<Molecule> molecules(max_mol); //default initialize the vectors --with lc-mols
 	Molecule *mols = new Molecule[max_mol];
@@ -66,6 +66,7 @@ int main(int argc, char* argv[])
 	Mol_Sys * lc_system = new Mol_Sys(sys_size, mols, max_mol, std_loc, std_spin, temp_range, temp_size, steps, model);
 	lc_system->start_cooling();
 	delete lc_system;
+	delete model;
 
 	scanf("finished");
 }
