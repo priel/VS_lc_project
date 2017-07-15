@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 		printf("SYSTEM_SIZE is %d and it doesn't match with DIMENSIONS which is %d\n", max_sys_size, DIMENSIONS);
 		exit(EXIT_FAILURE);
 	}
-	std::vector<double>  sys_sizes(sys_size, sys_size + sizeof(sys_size) / sizeof(sys_size[0]));
+	std::vector<double> sys_sizes(sys_size, sys_size + sizeof(sys_size) / sizeof(sys_size[0]));
 
 	//TODO: put it in function
 	int max_mol = 1;
