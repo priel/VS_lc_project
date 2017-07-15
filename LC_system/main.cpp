@@ -4,7 +4,7 @@
 #include "./include/molecule.h"
 #include "./include/defined.h"
 
-#define SIZE_OF_ARRAY(A) (sizeof(A)/sizeof(A[0]))
+#define SIZE_OF_ARRAY(A) (sizeof(A) / sizeof(A[0]))
 
 using namespace std;
 
@@ -16,21 +16,19 @@ int main(int argc, char* argv[])
 	/* Mol_Sys(double* sys_sizes, int dimensions, Molecule *mols, int max_mol,
 			double std_loc, double std_spin, double *temp_range, int temp_size, int steps); */
 
-
-	int steps = 10;
 	double std_loc = 1, std_spin = 1;
 
-	//TODO put it in function
+	//TODO put it in a function
 	double sys_size[] = SYSTEM_SIZES;
 	int max_sys_size = SIZE_OF_ARRAY(sys_size);
 	if (max_sys_size != DIMENSIONS)
 	{
-		printf("SYSTEM_SIZE is %d and it doesn't match with DIMENSIONS which is %d\n", max_sys_size, DIMENSIONS);
+		cout << "dimensions of SYSTEM_SIZE is " << max_sys_size << " and it doesn't match with DIMENSIONS which is " << DIMENSIONS << "\n";
 		exit(EXIT_FAILURE);
 	}
-	std::vector<double> sys_sizes(sys_size, sys_size + sizeof(sys_size) / sizeof(sys_size[0]));
+	std::vector<double> sys_sizes(sys_size, sys_size + max_sys_size);
 
-	//TODO: put it in function
+	//TODO: put it in a function
 	int max_mol = 1;
 	int mols_in_directions[] = MOLECULES_IN_EACH_DIRECTION;
 	int max_mols_each_direction_size = SIZE_OF_ARRAY(mols_in_directions);
@@ -39,31 +37,68 @@ int main(int argc, char* argv[])
 		printf("MOLECULES_IN_EACH_DIRECTION is %d and it doesn't match with DIMENSIONS which is %d\n", max_mols_each_direction_size, DIMENSIONS);
 		exit(EXIT_FAILURE);
 	}
-	for (int i = 0; i < DIMENSIONS; i++)
-		max_mol *= mols_in_directions[i];
+	std::vector<int> molecules_in_each_directions(mols_in_directions, mols_in_directions + max_mols_each_direction_size);
 
-	//TODO: put it in function
+	for (unsigned int i = 0; i < DIMENSIONS; i++)
+		max_mol *= molecules_in_each_directions[i];
+
+	//TODO: put it in a fucntion
+	int coll_mols[][DIMENSIONS] = COLLOID_MOLS;
+	int max_coll_mols = SIZE_OF_ARRAY(coll_mols);
+	vector< vector<int> > colloid_molecules;
+	for (int i = 0; i < max_coll_mols; i++)
+	{
+		vector<int> coll_indices(coll_mols[0], coll_mols[0] + DIMENSIONS);
+		colloid_molecules.push_back(coll_indices);
+	}
+	
+
+	//TODO: put it in a function
 	double temp_range[] = TEMPERATURE_RANGE;
 	int temp_size = SIZE_OF_ARRAY(temp_range);
-	std::vector<double> temperature_range(temp_range, temp_range + sizeof(temp_range) / sizeof(temp_range[0]));
+	std::vector<double> temperature_range(temp_range, temp_range + SIZE_OF_ARRAY(temp_range));
 
+	//TODO: put it in a function
 	std::vector<Molecule> molecules(max_mol); //default initialize the vectors --with lc-mols
-	Molecule *mols = new Molecule[max_mol];
 
+	//TODO: here should be some kind of randomness for the locations and the orientation.
 
-	//TODO: here should be some kind of STD for the locations and the orientation.
-	for (int i = 0; i < 3; i++)
+#if DIMENSIONS == 2
+	for (int i = 0; i < molecules_in_each_directions[0]; i++)
 	{
-		for (int j = 0; j < 3; j++)
+		for (int j = 0; j < molecules_in_each_directions[1]; j++)
 		{
-			molecules[3 * i + j].m_location[0] = i;
-			molecules[3 * i + j].m_location[1] = i;
-			molecules[3 * i + j].m_spin[0] = 1;
+			int molecule_to_manipulate = molecules_in_each_directions[0] * i + j;
+			molecules[molecule_to_manipulate].m_location[0] = i;
+			molecules[molecule_to_manipulate].m_location[1] = j;
+			molecules[molecule_to_manipulate].m_spin[0] = 1;
 		}
 	}
+#elif DIMENSIONS == 3
+	for (int i = 0; i < molecules_in_each_directions[0]; i++)
+	{
+		for (int j = 0; j < molecules_in_each_directions[1]; j++)
+		{
+			for (int k = 0; k < molecules_in_each_directions[2]; k++)
+			{
+				int molecule_to_manipulate = molecules_in_each_directions[0] * i + molecules_in_each_directions[1] * j + k;
+				molecules[molecule_to_manipulate].m_location[0] = i;
+				molecules[molecule_to_manipulate].m_location[1] = j;
+				molecules[molecule_to_manipulate].m_location[2] = k;
+				molecules[molecule_to_manipulate].m_spin[0] = 1;
+			}
+		}
+	}
+#endif //DIMENSIONS
 
-	Model * model = new Model(0.6, 1.8, 4.5, 4.5001, K_B, K_B, 1.0, 3.0, 1.0, 1.0);
-	Mol_Sys * lc_system = new Mol_Sys(sys_size, mols, max_mol, std_loc, std_spin, temp_range, temp_size, steps, model);
+	//change the type of mollecules:
+	for (unsigned int i = 0; i < colloid_molecules.size(); i++)
+	{
+		
+	}
+
+	Model * model = new Model();
+	Mol_Sys * lc_system = new Mol_Sys(sys_sizes, molecules, temperature_range, model);
 	lc_system->start_cooling();
 	delete lc_system;
 	delete model;

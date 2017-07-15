@@ -4,7 +4,13 @@
 
 Molecule::Molecule(std::vector<double> loc, std::vector<double> spin, Mol_Type mol_type)
                     : m_location(loc), m_spin(spin), m_mol_type(mol_type){}
-Molecule::Molecule(){m_mol_type = lc;}  //default molecule is lc
+
+Molecule::Molecule()
+{
+	m_mol_type = lc; //default molecule is lc
+	m_location.resize(DIMENSIONS);
+	m_spin.resize(DIMENSIONS);
+}  
 
 Molecule::~Molecule(){}
 
@@ -59,7 +65,7 @@ double Molecule::potential(const Molecule * mol, const Model * model)
             chi = model->m_chi_00;
             alpha = model->m_alpha_00;
 
-            epsilon0 = model->m_epsilon_0_0;
+            epsilon0 = EPSILON0_0;
             alpha_tag = model->m_alpha_tag_00;
             chi_tag = model->m_chi_tag_00;
         }
@@ -69,7 +75,7 @@ double Molecule::potential(const Molecule * mol, const Model * model)
             chi = model->m_chi_01;
             alpha = model->m_alpha_01; //in the original
 
-            epsilon0 = sqrt(model->m_epsilon_0_0 * model->m_epsilon_0_1);
+            epsilon0 = sqrt(EPSILON0_0 * EPSILON0_1);
             alpha_tag = model->m_alpha_tag_01;
             chi_tag = model->m_chi_tag_01;
         }
@@ -83,7 +89,7 @@ double Molecule::potential(const Molecule * mol, const Model * model)
             chi = model->m_chi_01;
             alpha = 1 / model->m_alpha_01; //in the original
 
-            epsilon0 = sqrt(model->m_epsilon_0_0 * model->m_epsilon_0_1);
+            epsilon0 = sqrt(EPSILON0_0 * EPSILON0_1);
             alpha_tag = model->m_alpha_tag_01;
             chi_tag = model->m_chi_tag_01;
         }
@@ -93,7 +99,7 @@ double Molecule::potential(const Molecule * mol, const Model * model)
             chi = model->m_chi_11;
             alpha = model->m_alpha_11;
 
-            epsilon0 = model->m_epsilon_0_1;
+            epsilon0 = EPSILON0_1;
             alpha_tag = model->m_alpha_tag_11;
             chi_tag = model->m_chi_tag_11;
         }
@@ -122,7 +128,7 @@ double Molecule::potential(const Molecule * mol, const Model * model)
 
     epsilon_miu = 1.0 - chi_tag * (first + second) / 2.0;
 
-    epsilon = epsilon0 * pow(epsilon_ni, model->m_ni) * pow(epsilon_miu, model->m_miu);
+    epsilon = epsilon0 * pow(epsilon_ni, NI) * pow(epsilon_miu, MIU);
 
     return (4 * epsilon * (pow(R,12) - pow(R,6)));
 
