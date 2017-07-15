@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 	int max_mols_each_direction_size = SIZE_OF_ARRAY(mols_in_directions);
 	if (max_mols_each_direction_size != DIMENSIONS)
 	{
-		printf("MOLECULES_IN_EACH_DIRECTION is %d and it doesn't match with DIMENSIONS which is %d\n", max_mols_each_direction_size, DIMENSIONS);
+		cout << "dimensions of MOLECULES_IN_EACH_DIRECTION is " << max_mols_each_direction_size << " and it doesn't match with DIMENSIONS which is " << DIMENSIONS << "\n";
 		exit(EXIT_FAILURE);
 	}
 	std::vector<int> molecules_in_each_directions(mols_in_directions, mols_in_directions + max_mols_each_direction_size);
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 	vector< vector<int> > colloid_molecules;
 	for (int i = 0; i < max_coll_mols; i++)
 	{
-		vector<int> coll_indices(coll_mols[0], coll_mols[0] + DIMENSIONS);
+		vector<int> coll_indices(coll_mols[i], coll_mols[i] + DIMENSIONS);
 		colloid_molecules.push_back(coll_indices);
 	}
 	
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 	{
 		for (int j = 0; j < molecules_in_each_directions[1]; j++)
 		{
-			int molecule_to_manipulate = molecules_in_each_directions[0] * i + j;
+			int molecule_to_manipulate = molecules_in_each_directions[1] * i + j;
 			molecules[molecule_to_manipulate].m_location[0] = i;
 			molecules[molecule_to_manipulate].m_location[1] = j;
 			molecules[molecule_to_manipulate].m_spin[0] = 1;
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
 		{
 			for (int k = 0; k < molecules_in_each_directions[2]; k++)
 			{
-				int molecule_to_manipulate = molecules_in_each_directions[0] * i + molecules_in_each_directions[1] * j + k;
+				int molecule_to_manipulate = molecules_in_each_directions[2] * molecules_in_each_directions[1] * i + molecules_in_each_directions[2] * j + k;
 				molecules[molecule_to_manipulate].m_location[0] = i;
 				molecules[molecule_to_manipulate].m_location[1] = j;
 				molecules[molecule_to_manipulate].m_location[2] = k;
@@ -91,11 +91,23 @@ int main(int argc, char* argv[])
 	}
 #endif //DIMENSIONS
 
-	//change the type of mollecules:
+
+#if DIMENSIONS == 2
 	for (unsigned int i = 0; i < colloid_molecules.size(); i++)
 	{
-		
+		int index_to_manipulate = molecules_in_each_directions[1] * colloid_molecules[i].at(0) + colloid_molecules[i].at(1);
+		molecules[index_to_manipulate].m_mol_type = col;
 	}
+#elif DIMENSIONS == 3
+	for (unsigned int i = 0; i < colloid_molecules.size(); i++)
+	{
+		int index_to_manipulate = molecules_in_each_directions[2] * molecules_in_each_directions[1] * colloid_molecules[i].at(0)
+											+ molecules_in_each_directions[1] * colloid_molecules[i].at(1)
+												+ colloid_molecules[i].at(2);
+		molecules[index_to_manipulate].m_mol_type = col;
+	}
+#endif // DIMENSIONS
+
 
 	Model * model = new Model();
 	Mol_Sys * lc_system = new Mol_Sys(sys_sizes, molecules, temperature_range, model);
@@ -103,6 +115,7 @@ int main(int argc, char* argv[])
 	delete lc_system;
 	delete model;
 
+	cout << "finished successfully";
 	scanf("finished");
 }
 /// after a bit of investigation, better use only vectors and not arrays.

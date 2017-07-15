@@ -3,7 +3,6 @@
 Mol_Sys::Mol_Sys(vector<double> & sys_sizes, vector<Molecule> & mols, vector<double> temperature_range, Model* model)
 	:m_sys_sizes(sys_sizes), m_molecules(mols), m_temperature_range(temperature_range), m_model(model)
 {
-	m_pair_potentials.resize(m_molecules.size());
 	for (unsigned int i = 0; i < m_molecules.size(); i++)
 	{
 		vector<double> pot(m_molecules.size());
@@ -129,11 +128,22 @@ void Mol_Sys::monte_carlo()
 		mol_chosen = m_molecules[num_mol_chosen];
 		for (unsigned int j = 0; j < mol_chosen.m_location.size(); j++)
 		{
+#if DEBUG >= 1
+			unsigned int counter = 0;
+#endif //DEBUG
 			///it's actually multivariate normal distribution where E=loc, std=std given, and no correlation between the axis.
 			do
 			{
+#if DEBUG >= 1
+				counter++;
+				if (counter > 500)
+				{
+					cout << "you probably gave location for molecule such that it excceed dimension " << j << "\n";
+					exit(EXIT_FAILURE);
+				}
+#endif //DEBUG
 				suggested_location = mol_chosen.m_location[j] + loc_dist(loc_gen);
-			} while ((suggested_location < m_sys_sizes[j]) && (suggested_location > 0) );
+			} while ((suggested_location > m_sys_sizes[j]) || (suggested_location < 0) );
 			mol_chosen.m_location[j] = suggested_location;
 		}
 
