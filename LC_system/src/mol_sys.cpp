@@ -38,13 +38,27 @@ void Mol_Sys::update_sys_potential()
 
 void Mol_Sys::start_cooling()
 {
+#ifdef SHOW_TEMP_TIMMING
+	clock_t prev, curr;
+	double duration;
+	curr = clock();
+#endif // SHOW_TEMP_TIMMING
+
 	/// in future will use some module how to cool the system.
 	/// currently will just perform x monte carlos for each temperature from the array.
 	for (m_current_index_temp = 0; m_current_index_temp < m_temperature_range.size(); m_current_index_temp++)
 	{
+
 		/// need to add print of the system here to xyz.
 		/// first implement just a simple print
 		monte_carlo();
+#ifdef SHOW_TEMP_TIMMING
+		prev = curr;
+		curr = clock();
+		duration = (curr - prev) / (double)CLOCKS_PER_SEC;
+		cout << "temperature index " << m_current_index_temp << " took " << duration << " secs" << endl;
+
+#endif // SHOW_TEMP_TIMMING
 	}
 }
 
@@ -121,6 +135,10 @@ void Mol_Sys::monte_carlo()
 
 	for (int i = 0; i < NUMBER_OF_STEPS; i++)
 	{
+#ifdef PRINT_STEP_NUM
+		cout << "doing step " << i << endl;
+#endif //DEBUG
+
 		///choose molecule:
 		num_mol_chosen = rand() % m_molecules.size();
 
@@ -128,13 +146,13 @@ void Mol_Sys::monte_carlo()
 		mol_chosen = m_molecules[num_mol_chosen];
 		for (unsigned int j = 0; j < mol_chosen.m_location.size(); j++)
 		{
-#if DEBUG >= 1
+#if DEBUG >= 3
 			unsigned int counter = 0;
 #endif //DEBUG
 			///it's actually multivariate normal distribution where E=loc, std=std given, and no correlation between the axis.
 			do
 			{
-#if DEBUG >= 1
+#if DEBUG >= 3
 				counter++;
 				if (counter > 500)
 				{

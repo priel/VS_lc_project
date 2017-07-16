@@ -23,31 +23,22 @@ double Molecule::potential(const Molecule * mol, const Model * model)
     double norm_r, sigma0, chi, alpha, first, second, sigma, R;
     double epsilon, epsilon_ni, epsilon_miu, epsilon0, alpha_tag, chi_tag;
     double dot_spin1_nr, dot_spin2_nr, dot_spin1_spin2;
+
     double r0, r1;
     #if DIMENSIONS == 3
         double r2;
     #endif // DIMENSIONS
+
     r0 = mol->m_location[0] - m_location[0];
     r1 = mol->m_location[1] - m_location[1];
     #if DIMENSIONS == 3
         r2 = mol->m_location[2] - m_location[2];
     #endif // DIMENSIONS
 
-    #if PRINT_DEBUG_POTENTIAL == 1
-        printf("mol0 type = %d, loc0=%f, loc1=%f, spin0=%f, spin1=%f\n", m_mol_type, m_location[0], m_location[1], m_spin[0], m_spin[1]);
-        printf("mol1 type = %d, loc0=%f, loc1=%f, spin0=%f, spin1=%f\n\n", mol->m_mol_type, mol->m_location[0], mol->m_location[1], mol->m_spin[0], mol->m_spin[1]);
-    #endif // PRINT_DEBUG_POTENTIAL
 
     #if DIMENSIONS == 2
         norm_r = sqrt(r0*r0 + r1*r1);
-
-        //first = m_spin[0];
-        //first = m_spin[0] * r0;
-        //second = m_spin[1] *r1;
-        //first = first + second;
-        //first /= norm_r;
         dot_spin1_nr = (m_spin[0]*r0 + m_spin[1]*r1) / norm_r;
-
         dot_spin2_nr = (mol->m_spin[0]*r0 + mol->m_spin[1]*r1) / norm_r;
         dot_spin1_spin2 = (mol->m_spin[0]*m_spin[0] + mol->m_spin[1]*m_spin[1]);
     #elif DIMENSIONS ==3

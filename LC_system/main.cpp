@@ -10,13 +10,6 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
-	/// here we just want to do some basic configuration for debug.
-	/// lets try with simple 3x3 2d.
-
-	/* Mol_Sys(double* sys_sizes, int dimensions, Molecule *mols, int max_mol,
-			double std_loc, double std_spin, double *temp_range, int temp_size, int steps); */
-
-	double std_loc = 1, std_spin = 1;
 
 	//TODO put it in a function
 	double sys_size[] = SYSTEM_SIZES;
@@ -42,6 +35,8 @@ int main(int argc, char* argv[])
 	for (unsigned int i = 0; i < DIMENSIONS; i++)
 		max_mol *= molecules_in_each_directions[i];
 
+	std::vector<Molecule> molecules(max_mol); //default initialize the vectors --with lc-mols
+
 	//TODO: put it in a fucntion
 	int coll_mols[][DIMENSIONS] = COLLOID_MOLS;
 	int max_coll_mols = SIZE_OF_ARRAY(coll_mols);
@@ -56,12 +51,24 @@ int main(int argc, char* argv[])
 	//TODO: put it in a function
 	double temp_range[] = TEMPERATURE_RANGE;
 	int temp_size = SIZE_OF_ARRAY(temp_range);
-	std::vector<double> temperature_range(temp_range, temp_range + SIZE_OF_ARRAY(temp_range));
+	std::vector<double> temperature_range(temp_range, temp_range + temp_size);
 
-	//TODO: put it in a function
-	std::vector<Molecule> molecules(max_mol); //default initialize the vectors --with lc-mols
 
-	//TODO: here should be some kind of randomness for the locations and the orientation.
+	//TODO: put it in a funciton.
+	double init_spin[] = INIT_SPIN;
+	int init_spin_size = SIZE_OF_ARRAY(init_spin);
+	std::vector<double> initial_spin(init_spin, init_spin + init_spin_size);
+	//check dimensions:
+	if (init_spin_size != DIMENSIONS)
+	{
+		cout << "dimensions of INIT_SPIN is " << init_spin_size << " and it doesn't match with DIMENSIONS which is " << DIMENSIONS << "\n";
+		exit(EXIT_FAILURE);
+	}
+
+
+	//what happen if the distribution will ge us out of the system?
+
+
 
 #if DIMENSIONS == 2
 	for (int i = 0; i < molecules_in_each_directions[0]; i++)
@@ -69,9 +76,10 @@ int main(int argc, char* argv[])
 		for (int j = 0; j < molecules_in_each_directions[1]; j++)
 		{
 			int molecule_to_manipulate = molecules_in_each_directions[1] * i + j;
-			molecules[molecule_to_manipulate].m_location[0] = i;
-			molecules[molecule_to_manipulate].m_location[1] = j;
-			molecules[molecule_to_manipulate].m_spin[0] = 1;
+			molecules[molecule_to_manipulate].m_location[0] = i * INIT_SPACING;
+			molecules[molecule_to_manipulate].m_location[1] = j * INIT_SPACING;
+			molecules[molecule_to_manipulate].m_spin[0] = initial_spin[0];
+			molecules[molecule_to_manipulate].m_spin[1] = initial_spin[1];
 		}
 	}
 #elif DIMENSIONS == 3
@@ -82,15 +90,51 @@ int main(int argc, char* argv[])
 			for (int k = 0; k < molecules_in_each_directions[2]; k++)
 			{
 				int molecule_to_manipulate = molecules_in_each_directions[2] * molecules_in_each_directions[1] * i + molecules_in_each_directions[2] * j + k;
-				molecules[molecule_to_manipulate].m_location[0] = i;
-				molecules[molecule_to_manipulate].m_location[1] = j;
-				molecules[molecule_to_manipulate].m_location[2] = k;
-				molecules[molecule_to_manipulate].m_spin[0] = 1;
+				molecules[molecule_to_manipulate].m_location[0] = i * INIT_SPACING;
+				molecules[molecule_to_manipulate].m_location[1] = j * INIT_SPACING;
+				molecules[molecule_to_manipulate].m_location[2] = k * INIT_SPACING;
+				molecules[molecule_to_manipulate].m_spin[0] = initial_spin[0];
+				molecules[molecule_to_manipulate].m_spin[1] = initial_spin[1];
+				molecules[molecule_to_manipulate].m_spin[2] = initial_spin[2];
 			}
 		}
 	}
 #endif //DIMENSIONS
 
+	///initiate the random generators:
+	srand((unsigned int)time(0));
+	std::default_random_engine loc_gen((unsigned int)time(0));
+	std::normal_distribution<double> loc_dist(0.0, INIT_SPACING_STD);
+
+	std::default_random_engine spin_gen((unsigned int)time(0));
+	std::normal_distribution<double> spin_dist(0.0, INIT_SPIN_STD);
+
+	for (unsigned int i = 0; i < molecules.size(); i++)
+	{
+		//change the location with std of location:
+		for (int j = 0; j < DIMENSIONS; j++)
+		{
+			double suggested_init_loc;
+			do
+			{
+				suggested_init_loc = molecules[i].m_location[j] + loc_dist(loc_gen);
+			} while ((suggested_init_loc < 0) || (suggested_init_loc > sys_sizes[j]));
+			molecules[i].m_location[j] = suggested_init_loc;
+		}
+
+		//change spin with the std of the spin and normalize it:
+		double norm_spin = 0;
+		for (int j = 0; j < DIMENSIONS; j++)
+		{
+			molecules[i].m_spin[j] = molecules[i].m_spin[j] + spin_dist(spin_gen);
+			norm_spin += (molecules[i].m_spin[j] * molecules[i].m_spin[j]);
+		}
+		norm_spin = sqrt(norm_spin);
+		for (int j = 0; j < DIMENSIONS; j++)
+		{
+			molecules[i].m_spin[j] = molecules[i].m_spin[j] / norm_spin;
+		}
+	}
 
 #if DIMENSIONS == 2
 	for (unsigned int i = 0; i < colloid_molecules.size(); i++)
@@ -108,6 +152,7 @@ int main(int argc, char* argv[])
 	}
 #endif // DIMENSIONS
 
+//here we can call to some function that will modify the system if user want to.
 
 	Model * model = new Model();
 	Mol_Sys * lc_system = new Mol_Sys(sys_sizes, molecules, temperature_range, model);
@@ -118,5 +163,4 @@ int main(int argc, char* argv[])
 	cout << "finished successfully";
 	scanf("finished");
 }
-/// after a bit of investigation, better use only vectors and not arrays.
-/// should convert all arrays into vectors.
+

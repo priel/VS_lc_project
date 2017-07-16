@@ -7,17 +7,23 @@
 #define MODEL_NAME "simple_debug1"
 
 #define DIMENSIONS 2
-#define MOLECULES_IN_EACH_DIRECTION {2,3} /// #moleuclues will be the product of all elements.
-#define SYSTEM_SIZES {3,3}
+#define MOLECULES_IN_EACH_DIRECTION {10,10} /// #moleuclues will be the product of all elements.
+#define SYSTEM_SIZES {1000,1000}
 
 /// colloid molecules
 #define COLLOID_MOLS {\
     {0,2},\
     {1,0} }
 
-#define TEMPERATURE_RANGE {3.1, 2.1, 1.0}  //temperature range of the monte carlo
+#define INIT_SPACING 1.0
+#define INIT_SPIN {1/sqrt(2), 1/sqrt(2)}
 
-#define NUMBER_OF_STEPS 5///number of steps in each temperature
+#define INIT_SPACING_STD 1.0
+#define INIT_SPIN_STD 1.0
+
+#define TEMPERATURE_RANGE {3.1, 2.1, 1.0}  ///temperature range of the monte carlo
+
+#define NUMBER_OF_STEPS 5000 ///number of steps in each temperature
 
 #define STD_LOCATION 0.1
 #define STD_SPIN 0.5
@@ -38,15 +44,11 @@
 #define EE_DIV_ES_0 1.0
 #define EE_DIV_ES_1	1.0
 
-//todo: add support fot these:
-#define INIT_SPACING
-#define INIT_SPIN
+///programming  and debug defined:
+#define DEBUG 100
+#define SHOW_TEMP_TIMMING
+//#define PRINT_STEP_NUM
 
-#define INIT_SPACING_STD
-#define INIT_SPIN_STD
-
-///programming defined:
-#define DEBUG 1
 enum Mol_Type {lc, col};
 
 #endif // DEFINED_H_INCLUDED

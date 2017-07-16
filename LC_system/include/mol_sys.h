@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <cstdio>
+#include <ctime>
 
 #include "./mol_sys.h"
 #include "./defined.h"
