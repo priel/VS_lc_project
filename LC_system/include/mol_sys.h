@@ -10,6 +10,13 @@
 #include <iostream>
 #include <cstdio>
 #include <ctime>
+#include <string>
+#if defined _MSC_VER
+#include <direct.h>
+#elif defined __GNUC__
+#include <sys/types.h>
+#include <sys/stat.h>
+#endif
 
 #include "./mol_sys.h"
 #include "./defined.h"
@@ -57,21 +64,29 @@ class Mol_Sys
 
         /** the public functions: */
 
+		///first time for writing:
+		///make directory same as the model name and copy the defined to defined model name.
+		void init_writing_files();
+
+		///writing xyz file (all molecules locations and orientations).
+		void write_current_state_to_xyz();
+
         /// update the system potential based on the pair potential
         void update_sys_potential();
 
+		/// in future will use some module how to cool the system.
+		/// currently will just perform x monte carlos for each temperature from the array.
         void start_cooling();
-        /// in future will use some module how to cool the system.
-        /// currently will just perform x monte carlos for each temperature from the array.
-
-        double get_all_pair_potential_of_index(unsigned int index);
+        
 		///get the potential of all the pairs with the index
-
+        double get_all_pair_potential_of_index(unsigned int index);
+		
+		/// in charge of updating the system.
         void update_sys(Molecule &mol_chosen, unsigned int index, double* potential, double tot_pot_update);
-        /// in charge of updating the system.
-
+        
+		///doing NUMBER_OF_STEPS times monte carlo steps
         void monte_carlo();
-        ///doing NUMBER_OF_STEPS times monte carlo steps
+        
 
 
     protected:
