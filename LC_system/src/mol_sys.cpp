@@ -24,7 +24,7 @@ Mol_Sys::~Mol_Sys()
 	//dtor
 }
 
-void Mol_Sys::init_writing_files()
+void Mol_Sys::make_model_directory()
 /// create folder in runs dir with the model name.
 {	
 	string model_name = MODEL_NAME;
@@ -43,6 +43,15 @@ void Mol_Sys::init_writing_files()
 		dir_to_create = original_dir + "_" + to_string(i);
 	} while (nError != 0);
 
+	i--;
+	dir_to_create = original_dir + "_" + to_string(i);
+
+	//copy the model file to the the model directory
+	std::ifstream  src(".//include//defined.h", std::ios::binary);
+	string defined_file = dir_to_create + "//defined_file.h";
+	std::ofstream  dst(defined_file, std::ios::binary);
+
+	dst << src.rdbuf();
 }
 
 void Mol_Sys::write_current_state_to_xyz()
@@ -71,7 +80,8 @@ void Mol_Sys::start_cooling()
 	curr = clock();
 #endif // SHOW_TEMP_TIMMING
 
-	init_writing_files();
+	make_model_directory();
+
 
 	/// in future will use some module how to cool the system.
 	/// currently will just perform x monte carlos for each temperature from the array.
@@ -81,6 +91,7 @@ void Mol_Sys::start_cooling()
 		/// need to add print of the system here to xyz.
 		/// first implement just a simple print
 		monte_carlo();
+
 #ifdef SHOW_TEMP_TIMMING
 		prev = curr;
 		curr = clock();
