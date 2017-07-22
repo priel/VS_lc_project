@@ -2,9 +2,11 @@
 
 
 
-Mol_Sys::Mol_Sys(vector<double> & sys_sizes, vector<Molecule> & mols, vector<double> temperature_range, Model* model)
-	:m_sys_sizes(sys_sizes), m_molecules(mols), m_temperature_range(temperature_range), m_model(model)
+Mol_Sys::Mol_Sys(vector<double> & sys_sizes, vector<Molecule> & mols, vector<double> temperature_range)
+	:m_sys_sizes(sys_sizes), m_molecules(mols), m_temperature_range(temperature_range)
 {
+	m_model = new Model();
+	m_file_writer = new File_Writer();
 	for (unsigned int i = 0; i < m_molecules.size(); i++)
 	{
 		vector<double> pot(m_molecules.size());
@@ -21,41 +23,8 @@ Mol_Sys::Mol_Sys(vector<double> & sys_sizes, vector<Molecule> & mols, vector<dou
 
 Mol_Sys::~Mol_Sys()
 {
-	//dtor
-}
-
-void Mol_Sys::make_model_directory()
-/// create folder in runs dir with the model name.
-{	
-	string model_name = MODEL_NAME;
-	string original_dir = ".//runs//" + model_name;
-	string dir_to_create = original_dir;
-	int nError = 0, i = 0;
-
-	do
-	{
-#if defined _MSC_VER
-		nError = _mkdir(dir_to_create.c_str());
-#elif defined __GNUC__
-		nError = mkdir(dir.c_str(), 0777);
-#endif
-		i++;
-		dir_to_create = original_dir + "_" + to_string(i);
-	} while (nError != 0);
-
-	i--;
-	dir_to_create = original_dir + "_" + to_string(i);
-
-	//copy the model file to the the model directory
-	std::ifstream  src(".//include//defined.h", std::ios::binary);
-	string defined_file = dir_to_create + "//defined_file.h";
-	std::ofstream  dst(defined_file, std::ios::binary);
-
-	dst << src.rdbuf();
-}
-
-void Mol_Sys::write_current_state_to_xyz()
-{
+	delete m_file_writer;
+	delete m_model;
 }
 
 void Mol_Sys::update_sys_potential()
@@ -80,8 +49,8 @@ void Mol_Sys::start_cooling()
 	curr = clock();
 #endif // SHOW_TEMP_TIMMING
 
-	make_model_directory();
-
+	m_file_writer->make_model_directory();
+	m_file_writer->write_state2xyz(m_molecules);
 
 	/// in future will use some module how to cool the system.
 	/// currently will just perform x monte carlos for each temperature from the array.
@@ -91,14 +60,15 @@ void Mol_Sys::start_cooling()
 		/// need to add print of the system here to xyz.
 		/// first implement just a simple print
 		monte_carlo();
+		m_file_writer->write_state2xyz(m_molecules);
 
 #ifdef SHOW_TEMP_TIMMING
 		prev = curr;
 		curr = clock();
 		duration = (curr - prev) / (double)CLOCKS_PER_SEC;
 		cout << "temperature index " << m_current_index_temp << " took " << duration << " secs" << endl;
-
 #endif // SHOW_TEMP_TIMMING
+
 	}
 }
 

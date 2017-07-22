@@ -154,13 +154,11 @@ int main(int argc, char* argv[])
 
 //here we can call to some function that will modify the system if user want to.
 
-	Model * model = new Model();
-	Mol_Sys * lc_system = new Mol_Sys(sys_sizes, molecules, temperature_range, model);
+	;
+	Mol_Sys * lc_system = new Mol_Sys(sys_sizes, molecules, temperature_range);
 	lc_system->start_cooling();
 	delete lc_system;
-	delete model;
 
 	cout << "finished successfully";
-	scanf("finished");
 }
 

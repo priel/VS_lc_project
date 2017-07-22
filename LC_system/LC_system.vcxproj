@@ -147,12 +147,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\defined.h" />
+    <ClInclude Include="include\file_writer.h" />
+    <ClInclude Include="include\init.h" />
     <ClInclude Include="include\model.h" />
     <ClInclude Include="include\molecule.h" />
     <ClInclude Include="include\mol_sys.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\file_writer.cpp" />
+    <ClCompile Include="src\init.cpp" />
     <ClCompile Include="src\model.cpp" />
     <ClCompile Include="src\molecule.cpp" />
     <ClCompile Include="src\mol_sys.cpp" />
