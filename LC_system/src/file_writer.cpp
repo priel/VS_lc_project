@@ -71,9 +71,11 @@ void File_Writer::write_state2xyz(const vector<Molecule> & molecules)
 	for (int i = 0; i < num_of_molecules; i++)
 		if (molecules[i].m_mol_type == col)
 			num_col_mol++;
-
+	/*
 	//setting format of double for writing:
-
+	xyz_file.precision(6);
+	xyz_file << fixed;
+	*/
 
 	int line_counter = num_of_molecules;
 	line_counter += (360 / DIF_ANGLES_COL_REPRESENTATION - 1) * num_col_mol;
@@ -89,10 +91,8 @@ void File_Writer::write_state2xyz(const vector<Molecule> & molecules)
 			for (int j = 0; j < (DEGREES_IN_CIRCLE / DIF_ANGLES_COL_REPRESENTATION); j++)
 			{
 				phi = (2 * PI * DIF_ANGLES_COL_REPRESENTATION / DEGREES_IN_CIRCLE) * j;
-				cout.precision(6);
-				cout << fixed;
-				xyz_file << "d 0.0 " << fixed << molecules[i].m_location[0] << " " << fixed << molecules[i].m_location[1] << " 0.0 "
-					<< fixed << cos(phi) << " " << fixed << sin(phi) << endl;
+				xyz_file << "d 0.0 " << molecules[i].m_location[0] << " " << molecules[i].m_location[1] << " 0.0 "
+					<< cos(phi) << " " << sin(phi) << endl;
 			}
 #elif DIMENSIONS == 3
 			double phi, theta;
@@ -102,8 +102,8 @@ void File_Writer::write_state2xyz(const vector<Molecule> & molecules)
 				for (int k = 0; k < (2 * DEGREES_IN_CIRCLE / DIF_ANGLES_COL_REPRESENTATION); k++)
 				{
 					theta = (2 * PI * DIF_ANGLES_COL_REPRESENTATION / DEGREES_IN_CIRCLE) * k;
-					xyz_file << "d " << fixed << molecules[i].m_location[0] << " " << fixed << molecules[i].m_location[1] << " " << fixed << molecules[i].m_location[2]
-						<< " " << fixed << sin(theta) * cos(phi) << " " << fixed << sin(theta) * sin(phi) << " " << fixed << cos(theta) << endl;
+					xyz_file << "d " << molecules[i].m_location[0] << " " << molecules[i].m_location[1] << " " << molecules[i].m_location[2]
+						<< " " << sin(theta) * cos(phi) << " " << sin(theta) * sin(phi) << " " << cos(theta) << endl;
 				}
 			}
 #endif
