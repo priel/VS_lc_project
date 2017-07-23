@@ -50,10 +50,10 @@ class Mol_Sys
 
         /** example of potentials as a matrix for m_molecules.size()=4:
             0   1   2   3
-        0  N/A 2.0 1.0 2.1
-        1  N/A N/A 2.1 1.2
-        2  N/A N/A N/A 1.0
-        3  N/A N/A N/A N/A   //this is not really needed and just here for simplicity.
+        0  N/A N/A N/A N/A
+        1  2.0 N/A N/A N/A
+        2  1.0 2.1 N/A N/A
+        3  2.2 0.8 0.5 N/A   //this is not really needed and just here for simplicity.
         */
 
         // We could have saved more memory by defining only the triangle, however it left that way for simplicity of the code.

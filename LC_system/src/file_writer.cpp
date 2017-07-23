@@ -71,6 +71,8 @@ void File_Writer::write_state2xyz(const vector<Molecule> & molecules)
 	for (int i = 0; i < num_of_molecules; i++)
 		if (molecules[i].m_mol_type == col)
 			num_col_mol++;
+
+	//turns out that AVIZ can parse any format, so leaving default format as is.
 	/*
 	//setting format of double for writing:
 	xyz_file.precision(6);

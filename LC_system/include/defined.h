@@ -26,8 +26,8 @@
 
 #define NUMBER_OF_STEPS 5000 ///number of steps in each temperature
 
-#define STD_LOCATION 0.1 ///the standart deviation of the location in the monte carlo
-#define STD_SPIN 0.5 ///the standart deviation of the orientation in the monte carlo
+#define STD_LOCATION 0.001 ///the standart deviation of the location in the monte carlo
+#define STD_SPIN 0.05 ///the standart deviation of the orientation in the monte carlo
 
 //L > D
 #define D_0 0.6 /// the small size of the liquid crystal molecule.

@@ -9,12 +9,12 @@ Mol_Sys::Mol_Sys(vector<double> & sys_sizes, vector<Molecule> & mols, vector<dou
 	m_file_writer = new File_Writer();
 	for (unsigned int i = 0; i < m_molecules.size(); i++)
 	{
-		vector<double> pot(m_molecules.size());
+		vector<double> pot(i); //generate a vector in size of i (0 for the first and so on).
 		m_pair_potentials.push_back(pot);
 	}
 
 	for (unsigned int i = 0; i < m_molecules.size(); i++)
-		for (unsigned int j = i + 1; j < m_molecules.size(); j++)
+		for (unsigned int j = 0; j < i; j++)
 			m_pair_potentials[i][j] = m_molecules[i].potential(&m_molecules[j], m_model);
 
 	update_sys_potential();
@@ -74,14 +74,14 @@ void Mol_Sys::start_cooling()
 
 double Mol_Sys::get_all_pair_potential_of_index(unsigned int index)
 {
-	///get the column potential:
+	///get the row potential:
 	double potential = 0.0;
 	for (unsigned int i = 0; i < index; i++)
-		potential += m_pair_potentials[i][index];
-
-	///get the row potential:
-	for (unsigned int i = index + 1; i < m_molecules.size(); i++)
 		potential += m_pair_potentials[index][i];
+
+	///get the coloumn potential:
+	for (unsigned int i = index + 1; i < m_molecules.size(); i++)
+		potential += m_pair_potentials[i][index];
 
 	return potential;
 }
@@ -102,13 +102,13 @@ void Mol_Sys::update_sys(Molecule &mol_chosen, unsigned int index, double* poten
 
 	///update the pair potential:
 
-	///update the column:
-	for (unsigned int i = 0; i < index; i++)
-		m_pair_potentials[i][index] = potential[i];
-
 	///update the rows:
-	for (unsigned int i = index + 1; i < m_molecules.size(); i++)
+	for (unsigned int i = 0; i < index; i++)
 		m_pair_potentials[index][i] = potential[i];
+
+	///update the columns:
+	for (unsigned int i = index + 1; i < m_molecules.size(); i++)
+		m_pair_potentials[i][index] = potential[i];
 
 	m_potential += tot_pot_update;
 
@@ -119,12 +119,12 @@ void Mol_Sys::update_sys(Molecule &mol_chosen, unsigned int index, double* poten
 
 void Mol_Sys::monte_carlo()
 {
-	/** for each step:
-		choose molecule randomly
-		change location and spin with gauss distribution
-		calculate dE
-		if dE<0 take the step
-		if not take the step with probability of e^-dE/Kb*T */
+	/// for each step:
+	///	choose molecule randomly
+	///	change location and spin with gauss distribution
+	///	calculate dE
+	///	if dE<0 take the step
+	///	if not take the step with probability of e^-dE/Kb*T */
 
 	int num_mol_chosen;
 	double prob, dE, current_total_pot, suggested_location, suggested_spin, spin_norm = 0, temp_total_pot = 0;
