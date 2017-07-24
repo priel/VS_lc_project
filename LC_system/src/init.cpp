@@ -40,14 +40,16 @@ vector<double> Init::get_sys_sizes()
 
 vector< vector<int> > Init::get_col_indices()
 {
+	vector< vector<int> > colloid_molecules;
+#ifndef IGNORE_COLLOIDS
 	int coll_mols[][DIMENSIONS] = COLLOID_MOLS;
 	int max_coll_mols = SIZE_OF_ARRAY(coll_mols);
-	vector< vector<int> > colloid_molecules;
 	for (int i = 0; i < max_coll_mols; i++)
 	{
 		vector<int> coll_indices(coll_mols[i], coll_mols[i] + DIMENSIONS);
 		colloid_molecules.push_back(coll_indices);
 	}
+#endif // IGNORE_COLLOIDS
 	return colloid_molecules;
 }
 

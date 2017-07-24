@@ -55,7 +55,7 @@ void File_Writer::make_model_directory()
 	}
 }
 
-void File_Writer::write_state2xyz(const vector<Molecule> & molecules)
+void File_Writer::write_state2xyz(const vector<Molecule> & molecules, double temperature, double potential)
 {
 	//craeting file in format: lqs_sys_0002
 	ofstream xyz_file;
@@ -80,9 +80,13 @@ void File_Writer::write_state2xyz(const vector<Molecule> & molecules)
 	*/
 
 	int line_counter = num_of_molecules;
-	line_counter += (360 / DIF_ANGLES_COL_REPRESENTATION - 1) * num_col_mol;
+#if DIMENSIONS == 2
+	line_counter += (DEGREES_IN_CIRCLE / DIF_ANGLES_COL_REPRESENTATION) * num_col_mol - 1;
+#elif DIMENSIONS == 3
+	line_counter += (DEGREES_IN_CIRCLE / DIF_ANGLES_COL_REPRESENTATION) * (DEGREES_IN_CIRCLE / DIF_ANGLES_COL_REPRESENTATION / 2) * num_col_mol - 1;
+#endif
 	xyz_file << line_counter << endl;
-	xyz_file << "Liquid Crystals with Colloide" << endl;
+	xyz_file << "Liquid Crystals with Colloide in temperature=" << temperature << ", and potential=" << potential << endl;
 	for (int i = 0; i < num_of_molecules; i++)
 	{
 		if (molecules[i].m_mol_type == col)
@@ -101,7 +105,7 @@ void File_Writer::write_state2xyz(const vector<Molecule> & molecules)
 			for (int j = 0; j < (DEGREES_IN_CIRCLE / DIF_ANGLES_COL_REPRESENTATION); j++)
 			{
 				phi = (2 * PI * DIF_ANGLES_COL_REPRESENTATION / DEGREES_IN_CIRCLE) * j;
-				for (int k = 0; k < (2 * DEGREES_IN_CIRCLE / DIF_ANGLES_COL_REPRESENTATION); k++)
+				for (int k = 0; k < (DEGREES_IN_CIRCLE / DIF_ANGLES_COL_REPRESENTATION) / 2; k++)
 				{
 					theta = (2 * PI * DIF_ANGLES_COL_REPRESENTATION / DEGREES_IN_CIRCLE) * k;
 					xyz_file << "d " << molecules[i].m_location[0] << " " << molecules[i].m_location[1] << " " << molecules[i].m_location[2]
@@ -123,4 +127,24 @@ void File_Writer::write_state2xyz(const vector<Molecule> & molecules)
 	}
 	xyz_file.close();
 	m_xyz_file_counter++;
+}
+
+void File_Writer::write_list_file()
+{
+	ofstream list_file;
+	string file_name = m_output_dir + "//xyz.list";
+	list_file.open(file_name);
+	stringstream xyz_suffix;
+	string xyz_name = "lqs_sys_";
+	string line;
+
+	for (int i = 0; i < m_xyz_file_counter; i++)
+	{
+		xyz_suffix.clear();
+		xyz_suffix.str(string());
+		xyz_suffix << setfill('0') << setw(4) << i;
+		line = xyz_name + xyz_suffix.str() + ".xyz";
+		list_file << line << endl;
+	}
+	list_file.close();
 }

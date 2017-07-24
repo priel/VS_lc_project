@@ -50,7 +50,7 @@ void Mol_Sys::start_cooling()
 #endif // SHOW_TEMP_TIMMING
 
 	m_file_writer->make_model_directory();
-	m_file_writer->write_state2xyz(m_molecules);
+	m_file_writer->write_state2xyz(m_molecules, m_temperature_range[0], m_potential);
 
 	/// in future will use some module how to cool the system.
 	/// currently will just perform x monte carlos for each temperature from the array.
@@ -60,7 +60,7 @@ void Mol_Sys::start_cooling()
 		/// need to add print of the system here to xyz.
 		/// first implement just a simple print
 		monte_carlo();
-		m_file_writer->write_state2xyz(m_molecules);
+		m_file_writer->write_state2xyz(m_molecules, m_temperature_range[m_current_index_temp], m_potential);
 
 #ifdef SHOW_TEMP_TIMMING
 		prev = curr;
@@ -70,6 +70,7 @@ void Mol_Sys::start_cooling()
 #endif // SHOW_TEMP_TIMMING
 
 	}
+	m_file_writer->write_list_file();
 }
 
 double Mol_Sys::get_all_pair_potential_of_index(unsigned int index)
@@ -127,7 +128,7 @@ void Mol_Sys::monte_carlo()
 	///	if not take the step with probability of e^-dE/Kb*T */
 
 	int num_mol_chosen;
-	double prob, dE, current_total_pot, suggested_location, suggested_spin, spin_norm = 0, temp_total_pot = 0;
+	double prob, dE, current_total_pot, suggested_location, suggested_spin, spin_norm, temp_total_pot;
 	double * potential;
 	Molecule mol_chosen;
 
@@ -145,9 +146,8 @@ void Mol_Sys::monte_carlo()
 
 	for (int i = 0; i < NUMBER_OF_STEPS; i++)
 	{
-#ifdef PRINT_STEP_NUM
-		cout << "doing step " << i << endl;
-#endif //DEBUG
+		temp_total_pot = 0;
+		spin_norm = 0;
 
 		///choose molecule:
 		num_mol_chosen = rand() % m_molecules.size();
@@ -156,13 +156,13 @@ void Mol_Sys::monte_carlo()
 		mol_chosen = m_molecules[num_mol_chosen];
 		for (unsigned int j = 0; j < mol_chosen.m_location.size(); j++)
 		{
-#if DEBUG >= 3
+#ifdef DEBUG
 			unsigned int counter = 0;
 #endif //DEBUG
 			///it's actually multivariate normal distribution where E=loc, std=std given, and no correlation between the axis.
 			do
 			{
-#if DEBUG >= 3
+#ifdef DEBUG
 				counter++;
 				if (counter > 500)
 				{
