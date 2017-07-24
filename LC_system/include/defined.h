@@ -8,7 +8,7 @@
 #define MODEL_NAME "3D_15x15x15_no_col_only_spins" ///the model name, this will be the folder name in the run directory
 
 #define DIMENSIONS 3
-#define MOLECULES_IN_EACH_DIRECTION {15,15,15} /// #moleuclues will be the product of all elements.
+#define MOLECULES_IN_EACH_DIRECTION {5,5,5} /// #moleuclues will be the product of all elements.
 #define SYSTEM_SIZES {1000,1000,1000} /// the location of the molecules cant exceed the size of the system.
 
 /// colloid molecules - define all the molecules in the system

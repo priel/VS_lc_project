@@ -177,11 +177,12 @@ void Mol_Sys::monte_carlo()
 
 		for (unsigned int j = 0; j < mol_chosen.m_spin.size(); j++)
 		{
-			///it's actually multivariate normal distribution where E=loc, std=std given, and no correlation between the axis.
+			//suggest the spin and normalize it.
 			suggested_spin = mol_chosen.m_spin[j] + spin_dist(spin_gen);
 			mol_chosen.m_spin[j] = suggested_spin;
-			spin_norm += suggested_spin;
+			spin_norm += (suggested_spin*suggested_spin);
 		}
+		spin_norm = sqrt(spin_norm);
 		for (unsigned int j = 0; j < mol_chosen.m_spin.size(); j++)
 			mol_chosen.m_spin[j] /= spin_norm;
 

@@ -33,19 +33,19 @@ double Molecule::potential(const Molecule * mol, const Model * model)
     r1 = mol->m_location[1] - m_location[1];
     #if DIMENSIONS == 3
         r2 = mol->m_location[2] - m_location[2];
-    #endif // DIMENSIONS
+    #endif // DIMENSIONS%
 
 
     #if DIMENSIONS == 2
         norm_r = sqrt(r0*r0 + r1*r1);
-        dot_spin1_nr = (m_spin[0]*r0 + m_spin[1]*r1) / norm_r;
-        dot_spin2_nr = (mol->m_spin[0]*r0 + mol->m_spin[1]*r1) / norm_r;
-        dot_spin1_spin2 = (mol->m_spin[0]*m_spin[0] + mol->m_spin[1]*m_spin[1]);
+        dot_spin1_nr = abs(m_spin[0]*r0 + m_spin[1]*r1) / norm_r;
+        dot_spin2_nr = abs(mol->m_spin[0]*r0 + mol->m_spin[1]*r1) / norm_r;
+        dot_spin1_spin2 = abs(mol->m_spin[0]*m_spin[0] + mol->m_spin[1]*m_spin[1]);
     #elif DIMENSIONS ==3
 		norm_r = sqrt(r0*r0 + r1*r1 + r2*r2);
-        dot_spin1_nr = (m_spin[0]*r0 + m_spin[1]*r1 + m_spin[2]*r2) / norm_r;
-        dot_spin2_nr = (mol->m_spin[0]*r0 + mol->m_spin[1]*r1 + mol->m_spin[2]*r2) / norm_r;
-        dot_spin1_spin2 = (mol->m_spin[0]*m_spin[0] + mol->m_spin[1]*m_spin[1] + mol->m_spin[2]*m_spin[2]);
+        dot_spin1_nr = abs(m_spin[0]*r0 + m_spin[1]*r1 + m_spin[2]*r2) / norm_r;
+        dot_spin2_nr = abs(mol->m_spin[0]*r0 + mol->m_spin[1]*r1 + mol->m_spin[2]*r2) / norm_r;
+        dot_spin1_spin2 = abs(mol->m_spin[0]*m_spin[0] + mol->m_spin[1]*m_spin[1] + mol->m_spin[2]*m_spin[2]);
     #endif // DIMENSIONS
 
     if ((m_mol_type == 0)) // both are LC
@@ -103,10 +103,17 @@ double Molecule::potential(const Molecule * mol, const Model * model)
     second = (dot_spin1_nr * alpha - dot_spin2_nr / alpha);
     second *= second;
     second /= (1.0 + chi * dot_spin1_spin2);
-
+#ifdef DEBUG
+	if ((1.0 - chi * (first + second) / 2.0) < 0)
+		exit(EXIT_FAILURE);
+#endif
     sigma = sigma0 / sqrt(1.0 - chi * (first + second) / 2.0);
     R = sigma0 / (norm_r - sigma + sigma0);
 
+#ifdef DEBUG
+	if ((1.0 - (chi * chi) * (dot_spin1_spin2 * dot_spin1_spin2)) < 0)
+		exit(EXIT_FAILURE);
+#endif
     epsilon_ni = 1.0 / sqrt(1.0 - (chi * chi) * (dot_spin1_spin2 * dot_spin1_spin2));
     // these first and second have nothing to do with the above first and second.
     first = alpha_tag * (dot_spin1_nr + dot_spin2_nr); // I assume that there was a problem in the paper and it should be alpha and not alpha inpower of -1
