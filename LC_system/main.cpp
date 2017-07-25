@@ -18,9 +18,7 @@ int main(int argc, char* argv[])
 	//add randomization to the initial location and orientation of the vectors:
 	Init::add_randomization(molecules, colloid_molecules, molecules_in_each_directions, sys_sizes);
 	
-
 //here we can call to some function that will modify the system if user want to.
-
 	Mol_Sys * lc_system = new Mol_Sys(sys_sizes, molecules, temperature_range);
 	lc_system->start_cooling();
 	delete lc_system;
