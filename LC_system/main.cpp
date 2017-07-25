@@ -7,6 +7,7 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {
+
 	//initializing all the vectors:
 	vector<double> sys_sizes = Init::get_sys_sizes();
 	vector<int> molecules_in_each_directions = Init::get_mols_each_dir();
