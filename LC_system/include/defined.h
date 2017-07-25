@@ -5,7 +5,7 @@
 #define K_B 1.38066e-23
 
 /// model defined:
-#define MODEL_NAME "3D_15x15x15_no_col_only_spins" ///the model name, this will be the folder name in the run directory
+#define MODEL_NAME "3D_5x5x5_no_col_only_spins" ///the model name, this will be the folder name in the run directory
 
 #define DIMENSIONS 3
 #define MOLECULES_IN_EACH_DIRECTION {5,5,5} /// #moleuclues will be the product of all elements.
